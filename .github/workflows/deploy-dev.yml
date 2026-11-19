@@ -1,0 +1,57 @@
+
+name: Deploy Snowflake DEV
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'migrations/**'
+      - 'schemachange-config.yml'
+
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    name: Deploy to Snowflake DEV
+    runs-on: ubuntu-latest
+
+    environment: dev
+
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ vars.SF_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ vars.SF_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SF_PASSWORD }}
+      SNOWFLAKE_ROLE: ${{ vars.SF_ROLE }}
+      SNOWFLAKE_WAREHOUSE: ${{ vars.SF_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ vars.SF_DATABASE }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install schemachange
+        run: |
+          python -m pip install --upgrade pip
+          pip install schemachange==4.3.3
+
+      - name: Verify Snowflake connection
+        run: |
+          schemachange verify --config-folder .
+
+      - name: Deploy SQL migrations to DEV
+        run: |
+          schemachange deploy \
+            --config-folder . \
+            -V '{"database":"IDB_DEV"}' \
+            -c IDB_DEV.SCHEMACHANGE.CHANGE_HISTORY \
+            --create-change-history-table \
+            -L INFO
+
+      - name: Deployment completed
+        run: echo "DEV deployment completed successfully"
