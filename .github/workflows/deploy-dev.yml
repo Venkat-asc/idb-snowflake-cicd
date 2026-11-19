@@ -48,8 +48,8 @@ jobs:
         run: |
           schemachange deploy \
             --config-folder . \
-            -V '{"database":"IDB_DEV"}' \
-            -c IDB_DEV.SCHEMACHANGE.CHANGE_HISTORY \
+            -V '{"database":"IDB"}' \
+            -c IDB.SCHEMACHANGE.CHANGE_HISTORY \
             --create-change-history-table \
             -L INFO
 
