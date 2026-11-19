@@ -1,0 +1,10 @@
+
+config-version: 2
+
+root-folder: migrations
+
+change-history-table: CHANGE_HISTORY
+
+change-history-table-schema: SCHEMACHANGE
+
+create-change-history-table: true
